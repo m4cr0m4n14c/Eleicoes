@@ -7,5 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Carlos E. Assini <carlosassini@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "console-table-printer": "^2.11.1",
+    "needle": "^3.1.0"
+  }
 }
