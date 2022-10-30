@@ -22,14 +22,19 @@ var dadosBrasil = JSON.parse(fs.readFileSync('./res/municipios.json', 'utf8'));
 dadosBrasil = dadosBrasil.abr
 
 var dados1T = JSON.parse(fs.readFileSync('./res/result1T.json', 'utf8'));
+var dados2T;
 
-var dados2T = constroiDados(ELEICAO2T)
+main()
 
-projetaDados2T()
+async function main() {
+  await resultTurno(ELEICAO2T);
+  dados2T = await constroiDados(ELEICAO2T)
+  await projetaDados2T()
+  exibeResultados()
+}
 
-// resultTurno(ELEICAO2T);
 
-exibeResultados()
+
 
 async function exibeResultados() {
   for(var i=0;i<dadosBrasil.length;i++) {//dadosBrasil.length
@@ -143,7 +148,7 @@ async function exibeResultados() {
 
 }
 
-function projetaDados2T() {
+async function projetaDados2T() {
   for(var s=0;s<dados2T.length;s++) {
     d = dados2T[s]
     pea = d.pst/100;
@@ -193,16 +198,16 @@ async function resultTurno(turno) {
         resultUF.push({uf: uf.cd.toLowerCase(), cdMu: mu.cd.toString(), cdZona: z.cdabr, e: parseInt(z.e), a: parseInt(z.a), tv: parseInt(z.tv),
           vv: parseInt(z.vvc), vb: parseInt(z.vb), vn: parseInt(z.vn), lula: (lula ? parseInt(lula.vap):0), bolso: (bolso ? parseInt(bolso.vap):0), pst: parseFloat(z.pea.replace(",","."))})
       }
-      await delay(50);
+      await delay(10);
     }
     console.log("=================================================")
     fs.writeFileSync('./res/' + uf.cd.toLowerCase() + turno+'.json', JSON.stringify(resultUF), "utf8");
-    await delay(3000);
+    await delay(2000);
   }
   // fs.writeFileSync('./res/result'+turno+'.json', JSON.stringify(result1T), "utf8");
 }
 
-function constroiDados(turno) {
+async function constroiDados(turno) {
   resp = [];
   for(var i=0;i<dadosBrasil.length;i++) {
     uf = dadosBrasil[i].cd.toLowerCase();
