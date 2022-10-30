@@ -12,11 +12,28 @@ const p = new Table({
     { name: 'Eleitores', alignment: 'right' },
     { name: 'Votantes', alignment: 'right' },
     { name: 'Abst%', alignment: 'center' },
-    { name: 'Lula', alignment: 'center', color: 'red'  },
-    { name: 'Bolso', alignment: 'center', color: 'blue'  },
+    { name: 'Lula', alignment: 'center', color: 'custom_red'  },
+    { name: 'Bolso', alignment: 'center', color: 'custom_blue'  },
     { name: 'Branco', alignment: 'center'},
-    { name: 'Nulo', alignment: 'center' }
-  ]});
+    { name: 'Nulo', alignment: 'center' },
+    { name: 'UF', alignment: 'center'}, // with alignment and color
+    { name: 'Z.E.(2T)', alignment: 'right' },
+    { name: 'Votantes(2TA)', alignment: 'right' },
+    { name: 'Abst%(2TA)', alignment: 'center' },
+    { name: 'Lula(2TA)', alignment: 'center', color: 'custom_red'  },
+    { name: 'Bolso(2TA)', alignment: 'center', color: 'custom_blue'  },
+    { name: 'Votantes(2TP)', alignment: 'right' },
+    { name: 'Abst%(2TP)', alignment: 'center' },
+    { name: 'Lula(2TP)', alignment: 'center', color: 'custom_red'  },
+    { name: 'Bolso(2TP)', alignment: 'center', color: 'custom_blue'  },
+  ],
+  colorMap: {
+    custom_red: '\x1b[101m', // define customized color '\x1b[32m'
+    custom_blue: '\x1b[44m', // define customized color '\x1b[32m'
+    custom_lgray: '\x1b[1m\x1b[100m', // define customized color '\x1b[32m'
+  },
+  title: "\x1b[42m|================================== RESULT 1o TURNO =================================|=COM VOTO=|================= APURADO 2o TURNO ==================|=============== PROJETADO 2o TURNO ==================|"
+});
 
 var dadosBrasil = JSON.parse(fs.readFileSync('./res/municipios.json', 'utf8'));
 dadosBrasil = dadosBrasil.abr
@@ -55,7 +72,23 @@ async function exibeResultados() {
     bolso = duf.reduce((a, b) => a + (b.bolso || 0), 0);
     bolsop = (Math.round((bolso/vv)*10000)/100);
 
-    //2T
+    //2TA
+    duf3 = dados2T.filter(obj=>obj.uf==uf)
+    e3 = duf3.reduce((a, b) => a + (parseInt(b.e) || 0), 0);
+    tv3 = duf3.reduce((a, b) => a + (b.tv || 0), 0);
+    a3 = duf3.reduce((a, b) => a + (b.a || 0), 0);
+    a3 = (Math.round((a3/e)*10000)/100).toFixed(2);
+    vb3 = duf3.reduce((a, b) => a + (b.vb || 0), 0);
+    vn3 = duf3.reduce((a, b) => a + (b.vn || 0), 0);
+    vv3 = duf3.reduce((a, b) => a + (b.vv || 0), 0);
+    vbp3 = (Math.round((vb3/vv3)*10000)/100)//.toFixed(2);
+    vnp3 = (Math.round((vn3/vv3)*10000)/100)//.toFixed(2);
+    lula3 = duf3.reduce((a, b) => a + (b.lula || 0), 0);
+    lulap3 = (Math.round((lula3/vv3)*10000)/100);
+    bolso3 = duf3.reduce((a, b) => a + (b.bolso || 0), 0);
+    bolsop3 = (Math.round((bolso3/vv3)*10000)/100);
+
+    //2TP
     duf2 = dados2T.filter(obj=>obj.uf==uf)
     tv2 = duf2.reduce((a, b) => a + (b.tvc || 0), 0);
     a2 = duf2.reduce((a, b) => a + (b.ac || 0), 0);
@@ -71,8 +104,10 @@ async function exibeResultados() {
     bolsop2 = (Math.round((bolso2/vv2)*10000)/100);
     zecv = duf2.filter(obj=>obj.tv>0).length;
 
-    p.addRow({"UF": uf.toUpperCase(),"Z.E.": duf.length, "Eleitores": e.toLocaleString(), "Votantes": tv.toLocaleString(), "Abst%": a, "Lula": lulap.toFixed(2),
-      "Bolso": bolsop.toFixed(2), "Branco": vbp, "Nulo": vnp, "Z.E.(2T)": zecv, "Votantes(2T)":tv2.toLocaleString(), "Abst%(2T)": a2, "Lula(2T)": lulap2.toFixed(2),"Bolso(2T)": bolsop2.toFixed(2)})
+    p.addRow({"UF": uf.toUpperCase(),"Z.E.": duf.length, "Eleitores": e.toLocaleString(), "Votantes": tv.toLocaleString(), "Abst%": a, "Lula": lulap.toFixed(2), "Bolso": bolsop.toFixed(2), "Branco": vbp, "Nulo": vnp,
+      "Z.E.(2T)": zecv,
+      "Votantes(2TA)":tv3.toLocaleString(), "Abst%(2TA)": a3, "Lula(2TA)": lulap3.toFixed(2),"Bolso(2TA)": bolsop3.toFixed(2),
+      "Votantes(2TP)":(tv3==0 ? "0" : tv2.toLocaleString()), "Abst%(2TP)": (tv3==0 ? "0.00" : a2), "Lula(2TP)": (tv3==0 ? "0.00" : lulap2.toFixed(2)),"Bolso(2TP)": (tv3==0 ? "0.00" : bolsop2.toFixed(2))})
   }
   uf = "BR"
   duf = dados1T;
@@ -89,7 +124,23 @@ async function exibeResultados() {
   bolso = duf.reduce((a, b) => a + (b.bolso || 0), 0);
   bolsop = (Math.round((bolso/vv)*10000)/100);
 
-  //2T
+  //2TA
+  duf3 = dados2T
+  e3 = duf3.reduce((a, b) => a + (parseInt(b.e) || 0), 0);
+  tv3 = duf3.reduce((a, b) => a + (b.tv || 0), 0);
+  a3 = duf3.reduce((a, b) => a + (b.a || 0), 0);
+  a3 = (Math.round((a3/e)*10000)/100).toFixed(2);
+  vb3 = duf3.reduce((a, b) => a + (b.vb || 0), 0);
+  vn3 = duf3.reduce((a, b) => a + (b.vn || 0), 0);
+  vv3 = duf3.reduce((a, b) => a + (b.vv || 0), 0);
+  vbp3 = (Math.round((vb3/vv3)*10000)/100)//.toFixed(2);
+  vnp3 = (Math.round((vn3/vv3)*10000)/100)//.toFixed(2);
+  lula3 = duf3.reduce((a, b) => a + (b.lula || 0), 0);
+  lulap3 = (Math.round((lula3/vv3)*10000)/100);
+  bolso3 = duf3.reduce((a, b) => a + (b.bolso || 0), 0);
+  bolsop3 = (Math.round((bolso3/vv3)*10000)/100);
+
+  //2TP
   duf2 = dados2T;
   tv2 = duf2.reduce((a, b) => a + (b.tvc || 0), 0);
   a2 = duf2.reduce((a, b) => a + (b.ac || 0), 0);
@@ -106,45 +157,50 @@ async function exibeResultados() {
   zecv = duf2.filter(obj=>obj.tv>0).length;
 
   // p.addRow({"UF": uf.toUpperCase(),"Z.E.": duf.length, "Eleitores": e.toLocaleString(), "Votantes": tv.toLocaleString(), "Abst%": a, "Lula": lulap.toFixed(2), "Bolso": bolsop.toFixed(2), "Branco": vbp, "Nulo": vnp}, {color: 'white_bold'})
-  p.addRow({"UF": uf.toUpperCase(),"Z.E.": duf.length, "Eleitores": e.toLocaleString(), "Votantes": tv.toLocaleString(), "Abst%": a, "Lula": lulap.toFixed(2),
-    "Bolso": bolsop.toFixed(2), "Branco": vbp, "Nulo": vnp, "Z.E.(2T)": zecv, "Votantes(2T)":tv2.toLocaleString(), "Abst%(2T)": a2, "Lula(2T)": lulap2.toFixed(2),"Bolso(2T)": bolsop2.toFixed(2)})
+  // p.addRow({"UF": uf.toUpperCase(),"Z.E.": duf.length, "Eleitores": e.toLocaleString(), "Votantes": tv.toLocaleString(), "Abst%": a, "Lula": lulap.toFixed(2),
+  //   "Bolso": bolsop.toFixed(2), "Branco": vbp, "Nulo": vnp, "Z.E.(2T)": zecv, "Votantes(2T)":tv2.toLocaleString(), "Abst%(2T)": a2, "Lula(2T)": lulap2.toFixed(2),"Bolso(2T)": bolsop2.toFixed(2)})
+  p.addRow({"UF": uf.toUpperCase(),"Z.E.": duf.length, "Eleitores": e.toLocaleString(), "Votantes": tv.toLocaleString(), "Abst%": a, "Lula": lulap.toFixed(2), "Bolso": bolsop.toFixed(2), "Branco": vbp, "Nulo": vnp,
+    "Z.E.(2T)": zecv,
+    "Votantes(2TA)":tv3.toLocaleString(), "Abst%(2TA)": a3, "Lula(2TA)": lulap3.toFixed(2),"Bolso(2TA)": bolsop3.toFixed(2),
+    "Votantes(2TP)":(tv3==0 ? "0" : tv2.toLocaleString()), "Abst%(2TP)": (tv3==0 ? "0.00" : a2), "Lula(2TP)": (tv3==0 ? "0.00" : lulap2.toFixed(2)),"Bolso(2TP)": (tv3==0 ? "0.00" : bolsop2.toFixed(2))},
+   { color: 'custom_lgray' })
   p.printTable();
   console.log("# https://github.com/m4cr0m4n14c/Eleicoes\n")
 
-  lt = new Table({title: "LULA TOP 20 EM %"});
-  for(l=0;l<20;l++){
-    lulaMax = dados1T.sort(function(a,b) {return (b.vv>1000 ? b.lula/b.vv : 0)-(a.vv>1000 ? a.lula/a.vv : 0)})[l]
-    mun = dadosBrasil.filter(obj=>obj.cd==lulaMax.uf.toUpperCase())[0]["mu"].filter(m=>m.cd==lulaMax.cdMu)[0]["nm"].replace('&apos;',"\'")
-    lt.addRow({"UF": lulaMax.uf.toUpperCase(), "Municipio":  mun, "Zona": lulaMax.cdZona, "Lula%": (Math.round(lulaMax.lula/lulaMax.vv*10000)/100).toFixed(1), "Lula": lulaMax.lula.toLocaleString(), "Bolso": lulaMax.bolso.toLocaleString()})
-  }
-  lt.printTable();
-  console.log("# https://github.com/m4cr0m4n14c/Eleicoes\n")
-
-  lt = new Table({title: "LULA TOP 20"});
-  for(l=0;l<20;l++){
-    lulaMax = dados1T.sort(function(a,b) {return b.lula-a.lula})[l]
-    mun = dadosBrasil.filter(obj=>obj.cd==lulaMax.uf.toUpperCase())[0]["mu"].filter(m=>m.cd==lulaMax.cdMu)[0]["nm"].replace('&apos;',"\'")
-    lt.addRow({"UF": lulaMax.uf.toUpperCase(), "Municipio":  mun, "Zona": lulaMax.cdZona, "Lula%": (Math.round(lulaMax.lula/lulaMax.vv*10000)/100).toFixed(1), "Lula": lulaMax.lula.toLocaleString() , "Bolso": lulaMax.bolso.toLocaleString()})
-  }
-  lt.printTable();
-  console.log("# https://github.com/m4cr0m4n14c/Eleicoes\n")
-
-  bt = new Table({title: "BOLSO TOP 20 EM %"});
-  for(l=0;l<20;l++){
-    bolsoMax = dados1T.sort(function(a,b) {return (b.vv>1000 ? b.bolso/b.vv : 0)-(a.vv>1000 ? a.bolso/a.vv : 0)})[l]
-    mun = dadosBrasil.filter(obj=>obj.cd==bolsoMax.uf.toUpperCase())[0]["mu"].filter(m=>m.cd==bolsoMax.cdMu)[0]["nm"].replace('&apos;',"\'")
-    bt.addRow({"UF": bolsoMax.uf.toUpperCase(),  "Municipio":  mun, "Zona": bolsoMax.cdZona, "Bolso%": (Math.round(bolsoMax.bolso/bolsoMax.vv*10000)/100).toFixed(1), "Lula": bolsoMax.lula.toLocaleString() , "Bolso": bolsoMax.bolso.toLocaleString()})
-  }
-  bt.printTable();
-  console.log("# https://github.com/m4cr0m4n14c/Eleicoes\n")
-
-  bt = new Table({title: "BOLSO TOP 20"});
-  for(l=0;l<20;l++){
-    bolsoMax = dados1T.sort(function(a,b) {return b.bolso-a.bolso})[l]
-    mun = dadosBrasil.filter(obj=>obj.cd==bolsoMax.uf.toUpperCase())[0]["mu"].filter(m=>m.cd==bolsoMax.cdMu)[0]["nm"].replace('&apos;',"\'")
-    bt.addRow({"UF": bolsoMax.uf.toUpperCase(),  "Municipio":  mun, "Zona": bolsoMax.cdZona, "Bolso%": (Math.round(bolsoMax.bolso/bolsoMax.vv*10000)/100).toFixed(1), "Lula": bolsoMax.lula.toLocaleString() , "Bolso": bolsoMax.bolso.toLocaleString()})
-  }
-  bt.printTable();
+  // lt = new Table({title: "LULA TOP 20 EM %"});
+  // for(l=0;l<20;l++){
+  //   lulaMax = dados1T.sort(function(a,b) {return (b.vv>1000 ? b.lula/b.vv : 0)-(a.vv>1000 ? a.lula/a.vv : 0)})[l]
+  //   mun = dadosBrasil.filter(obj=>obj.cd==lulaMax.uf.toUpperCase())[0]["mu"].filter(m=>m.cd==lulaMax.cdMu)[0]["nm"].replace('&apos;',"\'")
+  //   lt.addRow({"UF": lulaMax.uf.toUpperCase(), "Municipio":  mun, "Zona": lulaMax.cdZona, "Lula%": (Math.round(lulaMax.lula/lulaMax.vv*10000)/100).toFixed(1), "Lula": lulaMax.lula.toLocaleString(), "Bolso": lulaMax.bolso.toLocaleString()})
+  // }
+  // lt.printTable();
+  // console.log("# https://github.com/m4cr0m4n14c/Eleicoes\n")
+  //
+  // lt = new Table({title: "LULA TOP 20"});
+  // for(l=0;l<20;l++){
+  //   lulaMax = dados1T.sort(function(a,b) {return b.lula-a.lula})[l]
+  //   mun = dadosBrasil.filter(obj=>obj.cd==lulaMax.uf.toUpperCase())[0]["mu"].filter(m=>m.cd==lulaMax.cdMu)[0]["nm"].replace('&apos;',"\'")
+  //   lt.addRow({"UF": lulaMax.uf.toUpperCase(), "Municipio":  mun, "Zona": lulaMax.cdZona, "Lula%": (Math.round(lulaMax.lula/lulaMax.vv*10000)/100).toFixed(1), "Lula": lulaMax.lula.toLocaleString() , "Bolso": lulaMax.bolso.toLocaleString()})
+  // }
+  // lt.printTable();
+  // console.log("# https://github.com/m4cr0m4n14c/Eleicoes\n")
+  //
+  // bt = new Table({title: "BOLSO TOP 20 EM %"});
+  // for(l=0;l<20;l++){
+  //   bolsoMax = dados1T.sort(function(a,b) {return (b.vv>1000 ? b.bolso/b.vv : 0)-(a.vv>1000 ? a.bolso/a.vv : 0)})[l]
+  //   mun = dadosBrasil.filter(obj=>obj.cd==bolsoMax.uf.toUpperCase())[0]["mu"].filter(m=>m.cd==bolsoMax.cdMu)[0]["nm"].replace('&apos;',"\'")
+  //   bt.addRow({"UF": bolsoMax.uf.toUpperCase(),  "Municipio":  mun, "Zona": bolsoMax.cdZona, "Bolso%": (Math.round(bolsoMax.bolso/bolsoMax.vv*10000)/100).toFixed(1), "Lula": bolsoMax.lula.toLocaleString() , "Bolso": bolsoMax.bolso.toLocaleString()})
+  // }
+  // bt.printTable();
+  // console.log("# https://github.com/m4cr0m4n14c/Eleicoes\n")
+  //
+  // bt = new Table({title: "BOLSO TOP 20"});
+  // for(l=0;l<20;l++){
+  //   bolsoMax = dados1T.sort(function(a,b) {return b.bolso-a.bolso})[l]
+  //   mun = dadosBrasil.filter(obj=>obj.cd==bolsoMax.uf.toUpperCase())[0]["mu"].filter(m=>m.cd==bolsoMax.cdMu)[0]["nm"].replace('&apos;',"\'")
+  //   bt.addRow({"UF": bolsoMax.uf.toUpperCase(),  "Municipio":  mun, "Zona": bolsoMax.cdZona, "Bolso%": (Math.round(bolsoMax.bolso/bolsoMax.vv*10000)/100).toFixed(1), "Lula": bolsoMax.lula.toLocaleString() , "Bolso": bolsoMax.bolso.toLocaleString()})
+  // }
+  // bt.printTable();
 
 }
 
@@ -177,6 +233,7 @@ async function resultTurno(turno) {
   for(var i=0;i<dadosBrasil.length;i++) {
     resultUF = [];
     uf = dadosBrasil[i];
+    if(uf.cd!="ZZ") continue
     console.log("=================================================")
     console.log("Atualizando UF: " + (i+1) + "/" + dadosBrasil.length + " | " + uf.cd + " - " + uf.ds)
     mus = uf.mu
